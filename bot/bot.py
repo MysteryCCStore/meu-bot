@@ -100,125 +100,67 @@ def main():
     dp.add_handler(CommandHandler('deletarccs', delete_all_cards))
     dp.add_handler(CommandHandler('backup', download_backup))
     dp.add_handler(CommandHandler('estatisticas', estatisticas))
-    dp.add_handler(CommandHandler('relatorio', estatisticas))
-    dp.add_handler(CommandHandler('usuario', usuario))
-    dp.add_handler(CommandHandler('usuarios', pesquisarusuario))
+    dp.add_handler(CommandHandler('perfil', profile))
+    dp.add_handler(CommandHandler('trocar_pix', trocar_pix))
+    dp.add_handler(CommandHandler('pix_key', pix_key_check))
+    dp.add_handler(CommandHandler('afiliados', afil_start))
+    dp.add_handler(CommandHandler('history', history))
+    dp.add_handler(CommandHandler('mix', mix_menu))
+    dp.add_handler(CommandHandler('delete_account', delete_account))
+    dp.add_handler(CommandHandler('send', send))
+    dp.add_handler(CommandHandler('users', users))
+    dp.add_handler(CommandHandler('add_admin', add_admin))
+    dp.add_handler(CommandHandler('remove_admin', remove_admin))
+    dp.add_handler(CommandHandler('add_cc', adicionar_cc))
+    dp.add_handler(CommandHandler('add_credits', recarregar))
+    dp.add_handler(CommandHandler('edit_prices', editar_precos))
+    dp.add_handler(CommandHandler('gift_add', adicionar_gift))
+    dp.add_handler(CommandHandler('gift_gen', gerar_gift))
+    dp.add_handler(CommandHandler('create_table', criar_mix))
+    dp.add_handler(CommandHandler('menu_pix', menu_pix))
+    dp.add_handler(CommandHandler('flags', flags))
+    dp.add_handler(CommandHandler('add_groups', add_groups))
+    dp.add_handler(CommandHandler('chk', chk))
+    dp.add_handler(CommandHandler('separador', separador))
+    dp.add_handler(CommandHandler('baixarusuarios', baixar_usuarios))
+    dp.add_handler(CommandHandler('resaldo', resaldo))
+    dp.add_handler(CommandHandler('deletarcartoes', delete_all_cards))
+    dp.add_handler(CommandHandler('deletarccs', delete_all_cards))
+    dp.add_handler(CommandHandler('backup', download_backup))
+    dp.add_handler(CommandHandler('estatisticas', estatisticas))
+    dp.add_handler(CommandHandler('perfil', profile))
+    dp.add_handler(CommandHandler('trocar_pix', trocar_pix))
+    dp.add_handler(CommandHandler('pix_key', pix_key_check))
+    dp.add_handler(CommandHandler('afiliados', afil_start))
+    dp.add_handler(CommandHandler('history', history))
+    dp.add_handler(CommandHandler('mix', mix_menu))
+    dp.add_handler(CommandHandler('delete_account', delete_account))
+    dp.add_handler(CommandHandler('send', send))
+    dp.add_handler(CommandHandler('users', users))
+    
+    # Adiciona handlers extras se existirem nas listas definidas nos outros módulos
+    # Ajuste conforme necessário baseado no que você tem em cada cog
+    
+    # --- HANDLERS DE BOTÃO (CALLBACKS) ---
+    
+    # Handler principal de callbacks (para botões como m1, m2, etc.)
+    dp.add_handler(CallbackQueryHandler(dynamic_buttons, pattern='^m[0-9]+$'))
+    
+    # Handler para comprar cartão por ID (usando backticks)
+    dp.add_handler(CallbackQueryHandler(cartao, pattern='^`.*'))
+    
+    # Handler para cancelar compra
+    dp.add_handler(CallbackQueryHandler(cancelar_compra, pattern='^cancelar_compra$'))
+    
+    # Handler para remover cartão (apenas donos)
+    dp.add_handler(CallbackQueryHandler(remove_card, pattern='^remove_.*'))
+    
+    # *** ADICIONADO AQUI: Handler para ver detalhes do cartão na lista aleatória ***
+    dp.add_handler(CallbackQueryHandler(ver_cartao, pattern='^ver_.*'))
 
-    # Callback Queries (Botões)
-    dp.add_handler(CallbackQueryHandler(delete_all_cards, pattern='delete_cards_yes'))
-    dp.add_handler(CallbackQueryHandler(delete_card, pattern='remove_'))
-    dp.add_handler(CallbackQueryHandler(ferramentas, pattern='ferramentas'))
-    dp.add_handler(CallbackQueryHandler(edit_mp, pattern='edit_mp'))
-    dp.add_handler(CallbackQueryHandler(edit_mp, pattern='default_mp'))
-    dp.add_handler(CallbackQueryHandler(edit_mp, pattern='delete_mp'))
-    dp.add_handler(CallbackQueryHandler(edit_gn, pattern='edit_gn'))
-    dp.add_handler(CallbackQueryHandler(edit_gn, pattern='default_gn'))
-    dp.add_handler(CallbackQueryHandler(edit_gn, pattern='delete_gn'))
-    dp.add_handler(CallbackQueryHandler(edit_key, pattern='edit_key'))
-    dp.add_handler(CallbackQueryHandler(edit_key, pattern='default_key'))
-    dp.add_handler(CallbackQueryHandler(edit_key, pattern='delete_key'))
-    dp.add_handler(CallbackQueryHandler(menu_pix, pattern='main_pix'))
-    dp.add_handler(CallbackQueryHandler(menu_pix_criados, pattern='menu_pix_criados'))
-    dp.add_handler(CallbackQueryHandler(add_key_pix_start, pattern='key_menu_pix'))
-    dp.add_handler(CallbackQueryHandler(add_gn_pix_start, pattern='gn_menu_pix'))
-    dp.add_handler(CallbackQueryHandler(add_mp_pix_start, pattern='mp_menu_pix'))
-    dp.add_handler(CallbackQueryHandler(add_pix, pattern='menu_pix'))
-    dp.add_handler(CallbackQueryHandler(add_key_pix0, pattern='criar_pix_key'))
-    dp.add_handler(CallbackQueryHandler(recarregar, pattern='r_'))
-    dp.add_handler(CallbackQueryHandler(confirmar_compra_mix, pattern='comprarmix_'))
-    dp.add_handler(CallbackQueryHandler(comprar_mix, pattern='>'))
-    dp.add_handler(CallbackQueryHandler(ban, pattern='ban_'))
-    dp.add_handler(CallbackQueryHandler(unban, pattern='unban_'))
-    dp.add_handler(CallbackQueryHandler(usuario, pattern='usuario_'))
-    dp.add_handler(CallbackQueryHandler(menu, pattern='termos'))
-    dp.add_handler(CallbackQueryHandler(cancelar_compra, pattern='cancelar_compra'))
-    dp.add_handler(CallbackQueryHandler(preco_unitaria, pattern='cancelar_edicao1'))
-    dp.add_handler(CallbackQueryHandler(preco_mix, pattern='cancelar_edicao2'))
-    dp.add_handler(CallbackQueryHandler(unitaria, pattern='unitaria'))
-    dp.add_handler(CallbackQueryHandler(adicionar_saldo, pattern='adicionar_saldo'))
-    dp.add_handler(CallbackQueryHandler(aleatoria, pattern='aleatoria'))
-    dp.add_handler(CallbackQueryHandler(baixar_historico, pattern='baixar_historico'))
-    dp.add_handler(CallbackQueryHandler(encerrar_conta, pattern='encerrar_conta'))
-    dp.add_handler(CallbackQueryHandler(menu, pattern='main'))
-    dp.add_handler(CallbackQueryHandler(historico, pattern='m3'))
-    dp.add_handler(CallbackQueryHandler(informacoes, pattern='m2'))
-    dp.add_handler(CallbackQueryHandler(comprar, pattern='m1'))
-    dp.add_handler(CallbackQueryHandler(mix, pattern='mix'))
-    dp.add_handler(CallbackQueryHandler(afiliados, pattern='afiliados'))
-    dp.add_handler(CallbackQueryHandler(encerrar_conta, pattern='encerrar_conta_sim'))
-    dp.add_handler(CallbackQueryHandler(preco_mix, pattern='editar_mix'))
-    dp.add_handler(CallbackQueryHandler(preco_unitaria, pattern='editar_unitaria'))
-    dp.add_handler(CallbackQueryHandler(editar_precos, pattern='editar_precos'))
-    dp.add_handler(CallbackQueryHandler(cancel, pattern='cancelar_criacao_pix_mp'))
-    dp.add_handler(CallbackQueryHandler(send, pattern='delete_message'))
-    dp.add_handler(CallbackQueryHandler(add_admin_button, pattern='add_admin_'))
-    dp.add_handler(CallbackQueryHandler(remove_admin_button, pattern='rm_admin_'))
-    dp.add_handler(CallbackQueryHandler(flags, pattern='flag_'))
-    dp.add_handler(CallbackQueryHandler(search, pattern='search'))
-    dp.add_handler(CallbackQueryHandler(troca, pattern='troca'))
-    dp.add_handler(CallbackQueryHandler(estatisticas, pattern='stats_'))
-
-    # Conversation Handlers (Pix)
-    conv_handler_gn = ConversationHandler(
-        entry_points=[CallbackQueryHandler(add_gn_pix, pattern='criar_pix_gn')],
-        states={
-            STEP1: [MessageHandler(Filters.document & ~Filters.command, add_gn_pix2)],
-            STEP2: [MessageHandler(Filters.text & ~Filters.command, add_gn_pix3)],
-            STEP3: [MessageHandler(Filters.text & ~Filters.command, add_gn_pix4)],
-            STEP4: [MessageHandler(Filters.text & ~Filters.command, add_gn_pix5)]
-        },
-        fallbacks=[CallbackQueryHandler(cancel, pattern='cancelar_criacao_pix_gn')],
-    )
-
-    conv_handler_mp = ConversationHandler(
-        entry_points=[CallbackQueryHandler(add_mp_pix, pattern='criar_pix_mp')],
-        states={
-            STEP1: [MessageHandler(Filters.text & ~Filters.command, add_mp_pix2)],
-        },
-        fallbacks=[CallbackQueryHandler(cancel, pattern='cancelar_criacao_pix_mp')],
-    )
-
-    conv_handler_key = ConversationHandler(
-        entry_points=[CallbackQueryHandler(add_key_pix1, pattern='pix_cpf'),
-                      CallbackQueryHandler(add_key_pix1, pattern='pix_cnpj'),
-                      CallbackQueryHandler(add_key_pix1, pattern='pix_email'),
-                      CallbackQueryHandler(add_key_pix1, pattern='pix_telefone'),
-                      CallbackQueryHandler(add_key_pix1, pattern='pix_aleatoria')],
-        states={
-            STEP1: [MessageHandler(Filters.text & ~Filters.command, add_key_pix2)],
-        },
-        fallbacks=[CallbackQueryHandler(cancel, pattern='cancelar_criacao_pix_key')],
-    )
-
-    dp.add_handler(conv_handler_gn)
-    dp.add_handler(conv_handler_mp)
-    dp.add_handler(conv_handler_key)
-
-    # Job Queue (Tarefas Agendadas)
-    j = updater.job_queue
-    try:
-        j.run_repeating(payment_checker, interval=120, first=120)
-    except: pass
-    try:
-        j.run_repeating(scheduled_tasks, interval=3600, first=3600)
-    except: pass
-    try:
-        j.run_repeating(backup_task, interval=43200, first=43200)
-    except: pass
-
-    # Outros Handlers
-    dp.add_handler(InlineQueryHandler(inlinequery))
-    dp.add_handler(MessageHandler(Filters.document.mime_type("text/plain"), bulk_ccs))
-    dp.add_handler(MessageHandler(Filters.document.mime_type("application/vnd.sqlite3"), upload_backup))
-    dp.add_handler(CallbackQueryHandler(dynamic_buttons))
-    dp.add_handler(MessageHandler(Filters.caption & Filters.photo, send))
-    dp.add_handler(MessageHandler(Filters.caption & Filters.video, send))
-    dp.add_handler(MessageHandler(Filters.caption & Filters.document, send))
-    dp.add_handler(MessageHandler(Filters.caption & Filters.audio, send))
-
-    # INICIO DO BOT
-    print("Polling iniciado...")
-    updater.start_polling(poll_interval=1.0, timeout=20)
+    # --- INICIAR BOT ---
+    updater.start_polling()
+    print("Bot rodando...")
     updater.idle()
 
 if __name__ == '__main__':
