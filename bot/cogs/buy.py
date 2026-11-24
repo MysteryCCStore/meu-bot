@@ -54,52 +54,49 @@ def cartao(update: Update, context: CallbackContext):
 
 
 def aleatoria(update: Update, context: CallbackContext):
-    donos = adm_list()
     query = update.callback_query
     user_info = query.from_user
     user_id = str(user_info['id'])
-            
+    
+    # Verifica se tem permissão
     if check_status(user_id):
-        keyboard2 = [
-            [InlineKeyboardButton(f'◀︎ {button_back}', callback_data='m1')],]
-        
-        rows = asyncio.run(all_ccs())
-        
-        results= []
-        for row in rows:
-            cc_id1 = row[0]
-            results.append(cc_id1)
+        try:
+            # Busca todos os cartões cadastrados no banco
+            rows = asyncio.run(all_ccs())
+            
+            # Se não tiver nenhum cartão
+            if not rows:
+                keyboard2 = [[InlineKeyboardButton("◀︎ Voltar", callback_data='m1')]]
+                context.bot.edit_message_text(chat_id=query.message.chat_id, message_id=query.message.message_id, text="📦 Estoque vazio.", reply_markup=InlineKeyboardMarkup(keyboard2))
+                return
 
-        q = len(results)
-        if q > 2:
-            a = randint(0, q - 1)
+            # Cria a lista de botões para cada cartão
+            keyboard = []
+            for row in rows:
+                cc_id = row[0]
+                numero = row[1][:6] + "****" # Mostra só os 6 primeiros números
+                bandeira = is_null(row[5])
+                
+                # Cria o botão visualmente bonito
+                btn = InlineKeyboardButton(f"💳 {bandeira} {numero}", callback_data=f'view_{cc_id}')
+                keyboard.append([btn])
             
-            cc_id = results[a]
-            row = asyncio.run(pesquisar_cc_id(cc_id))
-            numero = row[1][:6]
-            expiracao = is_null(row[2])
-            tipo = is_null(row[4])
-            bandeira = is_null(row[5])
-            categoria = is_null(row[6])
-            banco = is_null(row[7])
-            preco_cc = is_null(asyncio.run(precos(categoria)))
+            # Adiciona o botão de voltar no final
+            keyboard.append([InlineKeyboardButton("◀︎ Voltar", callback_data='m1')])
             
-            keyboard = [
-                [InlineKeyboardButton(f'✅ {button_buy}', callback_data='`'+str(cc_id))],
-                [InlineKeyboardButton(f'🔃 {button_reset_card}', callback_data='aleatoria')],]
-            
-            if user_id in donos:
-                keyboard.append([InlineKeyboardButton(f'🗑️ Deletar CC', callback_data=f'remove_{cc_id}')])
-            
-            
-            keyboard.append([InlineKeyboardButton(f'◀︎ {button_back}', callback_data='m1')])
-            
-            context.bot.edit_message_text(chat_id=query.message.chat_id, message_id=query.message.message_id, text=cc_info_buy.format(numero, expiracao, bandeira, tipo, categoria, banco, preco_cc), parse_mode='Markdown', reply_markup=InlineKeyboardMarkup(keyboard))
+            # Atualiza a tela com a lista
+            context.bot.edit_message_text(
+                chat_id=query.message.chat_id, 
+                message_id=query.message.message_id, 
+                text="📋 **GGs Disponíveis:**\n\nSelecione um card:", 
+                parse_mode='Markdown', 
+                reply_markup=InlineKeyboardMarkup(keyboard)
+            )
 
-        else:
-            context.bot.edit_message_text(chat_id=query.message.chat_id, message_id=query.message.message_id, text=stock_null_randint, parse_mode='Markdown', reply_markup=InlineKeyboardMarkup(keyboard2))
-
+        except Exception as e:
+            context.bot.edit_message_text(chat_id=query.message.chat_id, message_id=query.message.message_id, text=f"⚠️ Erro: {e}")
     else:
+        # Mensagem de negado (mantenha a original ou use esta)
         context.bot.edit_message_text(chat_id=query.message.chat_id, message_id=query.message.message_id, text=denied_text(user_id), parse_mode='Markdown')
 
 
