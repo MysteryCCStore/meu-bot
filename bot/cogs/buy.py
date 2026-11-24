@@ -16,6 +16,7 @@ def is_null(content):
 
 
 def cartao(update: Update, context: CallbackContext):
+    # Mantém sua função original de compra por texto/id
     query = update.message
     user_info = query.from_user
     user_id = str(user_info['id'])
@@ -78,7 +79,8 @@ def aleatoria(update: Update, context: CallbackContext):
                 bandeira = is_null(row[5])
                 
                 # Cria o botão visualmente bonito
-                btn = InlineKeyboardButton(f"💳 {bandeira} {numero}", callback_data=f'view_{cc_id}')
+                # IMPORTANTE: Usamos 'ver_' para diferenciar de outros callbacks
+                btn = InlineKeyboardButton(f"💳 {bandeira} {numero}", callback_data=f'ver_{cc_id}')
                 keyboard.append([btn])
             
             # Adiciona o botão de voltar no final
@@ -96,64 +98,65 @@ def aleatoria(update: Update, context: CallbackContext):
         except Exception as e:
             context.bot.edit_message_text(chat_id=query.message.chat_id, message_id=query.message.message_id, text=f"⚠️ Erro: {e}")
     else:
-        # Mensagem de negado (mantenha a original ou use esta)
+        # Mensagem de negado
         context.bot.edit_message_text(chat_id=query.message.chat_id, message_id=query.message.message_id, text=denied_text(user_id), parse_mode='Markdown')
 
 
-def cancelar_compra(update: Update, context: CallbackContext):
-    keyboard = [[InlineKeyboardButton(f'◀︎ {button_main}', callback_data='main')]]
+def ver_cartao(update: Update, context: CallbackContext):
+    """
+    Função chamada quando clica em um cartão da lista aleatória.
+    Reutiliza a lógica de exibição do cartao(), mas lendo o callback_data.
+    """
     query = update.callback_query
-    context.bot.edit_message_text(chat_id=query.message.chat_id, message_id=query.message.message_id, text=cancelled_purchase, parse_mode='Markdown', reply_markup=InlineKeyboardMarkup(keyboard))
-
-
-def comprar(update: Update, context: CallbackContext):
-    results = asyncio.run(all_ccs())
-
-    q = len(results)
-    query = update.callback_query
+    query.answer() # Remove o spinner
+    
     user_info = query.from_user
     user_id = str(user_info['id'])
+    
     if check_status(user_id):
-        nome = str(user_info['first_name'])
-        asyncio.run(registrar_usuario(user_id, nome))
-        asyncio.run(name_update(user_id, nome))
-        user = asyncio.run(pesquisar_id(str(user_id)))
-        saldo = user[1]
-
-        if not q == 0:
-            if q > 2:
-                r = randint(0, q-1)
+        try:
+            # Pega o ID do botão clicado (ex: 'ver_123' -> pega '123')
+            data = query.data
+            cc_id = data.replace('ver_', '')
+            
+            # Se houver tipo de pagamento junto (opcional, dependendo do seu sistema)
+            if '|' in cc_id:
+                cc_id, tipo_p = cc_id.split('|')
             else:
-                r = 0
-                
-            bandeira = results[r][5]
-            bin_num = results[r][1][:6]
-            banco = results[r][7]
+                tipo_p = ''
 
-            if bandeira.strip() == '':
-                bandeira = scheme_search_default
+            # Busca os dados no banco
+            row = asyncio.run(pesquisar_cc_id(cc_id))
+            if not row:
+                query.edit_message_text("Card não encontrado.")
+                return
 
-            if bin_num.strip() == '':
-                bin_num = bin_search_default
+            numero = row[1][:6]
+            expiracao = is_null(row[2])
+            tipo = is_null(row[4])
+            bandeira = is_null(row[5])
+            categoria = is_null(row[6])
+            banco = is_null(row[7])
+            preco_cc = is_null(asyncio.run(precos(categoria)))
+            
+            donos = adm_list()
+            
+            keyboard = [
+                [InlineKeyboardButton(f'✅ {button_buy}', callback_data='`'+str(cc_id)+tipo_p)],
+                [InlineKeyboardButton(f'❌ {button_cancel}', callback_data='cancelar_compra')],]
+            
+            if user_id in donos:
+                keyboard.append([InlineKeyboardButton(f'🗑️ Deletar CC', callback_data=f'remove_{cc_id}')])
+            
+            # Usa o mesmo formato de mensagem da função cartao original
+            query.edit_message_text(
+                text=cc_info_buy.format(numero, expiracao, bandeira, tipo, categoria, banco, preco_cc), 
+                parse_mode='Markdown', 
+                reply_markup=InlineKeyboardMarkup(keyboard)
+            )
 
-            if banco.strip() == '':
-                banco = bank_search_default
-
-        else:
-            bandeira = scheme_search_default
-            bin_num = bin_search_default
-            banco = bank_search_default
-
-        keyboard = [
-            [InlineKeyboardButton(f'💳 {button_unitary_card}', callback_data='unitaria'),
-            InlineKeyboardButton(f'🎲 {button_random_card}', callback_data='aleatoria'),],
-            [InlineKeyboardButton(f'🔃 {button_mix}', callback_data='mix'),
-            InlineKeyboardButton(f'🔎 Pesquisar', callback_data='search')],
-            [InlineKeyboardButton(f'◀︎ {button_main}', callback_data='main')]]
-        
-        context.bot.edit_message_text(chat_id=query.message.chat_id, message_id=query.message.message_id, text=stock_status.format(saldo, q), parse_mode='Markdown', reply_markup=InlineKeyboardMarkup(keyboard))
+        except Exception as e:
+            query.edit_message_text(text=f"Erro ao carregar card: {e}")
 
     else:
-        context.bot.edit_message_text(chat_id=query.message.chat_id, message_id=query.message.message_id, text=denied_text(user_id), parse_mode='Markdown')
-
-
+        query.edit_message_text(text=denied_text(user_id), parse_mode='Markdown')
